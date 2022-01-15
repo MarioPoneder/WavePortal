@@ -17,14 +17,22 @@ contract WavePortal {
 
     Wave[] waves;
     mapping (address => uint256[]) addressToWaveIndices;
+    mapping (bytes32 => address) nicknameHashToAddress;
 
     constructor() {
         console.log("WavePortal constructor");
     }
 
-    function wave(string calldata _nickname, string calldata _message) external payable  {
+    modifier nicknameCheck(string calldata _nickname) {
         require(bytes(_nickname).length <= 50, "Nickname is too long");
+        bytes32 nicknameHash = keccak256(abi.encodePacked(_nickname));
+        address nicknameOwner = nicknameHashToAddress[nicknameHash];
+        require(nicknameOwner == address(0) || nicknameOwner == msg.sender, "Nickname is already taken");
+        nicknameHashToAddress[nicknameHash] = msg.sender;
+        _;
+    }
 
+    function wave(string calldata _nickname, string calldata _message) external payable nicknameCheck(_nickname)  {
         addressToWaveIndices[msg.sender].push(waves.length);
         waves.push(Wave(msg.sender, block.timestamp, _nickname, _message, msg.value));
         
