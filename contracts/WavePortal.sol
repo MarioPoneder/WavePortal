@@ -3,8 +3,13 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
-contract WavePortal {
+
+contract WavePortal is Ownable {
+    using Address for address payable;
+
     event Waved(address indexed from, uint256 timestamp, string nickname, string message, uint256 indexed tip);
 
     struct Wave {
@@ -65,5 +70,9 @@ contract WavePortal {
 
         console.log("%s has waved %d time(s)!", _address, waveCount);
         return wavesOf;
+    }
+
+    function collectTips() external onlyOwner {
+        payable(owner()).sendValue(address(this).balance);
     }
 }
