@@ -7,26 +7,27 @@ const main = async () => {
   console.log("Contract deployed to:", waveContract.address);
   console.log("Contract deployed by:", owner.address);
 
-  waveContract.on("Waved", (sender, tip) => {
-    console.log("Event: ", sender, " has waved and tipped ", tip, "!");
+  waveContract.on("Waved", (from, timestamp, nickname, message, tip) => {
+    console.log("Event: ", from, " has waved and tipped ", tip, "!");
   });
 
   let waveCount;
   waveCount = await waveContract.getTotalWaves();
 
-  let waveTxn = await waveContract.wave();
+  let waveTxn = await waveContract.wave("Owner", "It's-a me, Mario!");
   await waveTxn.wait();
   waveCount = await waveContract.getTotalWaves();
 
-  waveTxn = await waveContract.connect(randomPerson).wave({ value: 1000 });
+  waveTxn = await waveContract.connect(randomPerson).wave("Random generous person", "Here's your tip!", { value: 100000 });
   waveRes = await waveTxn.wait();
+  //console.log(waveRes.events[0].args);
   waveCount = await waveContract.getTotalWaves();
 
-  waveCount = await waveContract.connect(randomPerson).getMyWaves();
+  let allWaves = await waveContract.getAllWaves();
+  console.log(allWaves);
   
-  waveCount = await waveContract.connect(randomPerson).getWavesOf(owner.address);
-
-  //console.log(waveRes.events[0].args);
+  let ownerWaves = await waveContract.connect(randomPerson).getWavesOf(owner.address);
+  console.log(ownerWaves);
 };
 
 const runMain = async () => {
