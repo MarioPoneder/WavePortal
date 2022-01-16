@@ -33,7 +33,9 @@ contract WavePortal is Ownable {
         bytes32 nicknameHash = keccak256(abi.encodePacked(_nickname));
         address nicknameOwner = nicknameHashToAddress[nicknameHash];
         require(nicknameOwner == address(0) || nicknameOwner == msg.sender, "Nickname is already taken");
-        nicknameHashToAddress[nicknameHash] = msg.sender;
+        if (nicknameOwner == address(0)) {
+            nicknameHashToAddress[nicknameHash] = msg.sender;
+        }
         _;
     }
 
